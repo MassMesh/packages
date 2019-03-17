@@ -15,13 +15,13 @@ PKG_BUILD_PARALLEL:=1
 include $(INCLUDE_DIR)/package.mk
 
 define Package/yggdrasil
-  SECTION:=net
-  CATEGORY:=Network
-  SUBMENU:=Routing and Redirection
-  TITLE:=Yggdrasil supports end-to-end encrypted IPv6 networks
-  URL:=https://yggdrasil-network.github.io/
-  DEPENDS:=$(GO_ARCH_DEPENDS) @IPV6 +kmod-tun +@(mips):KERNEL_MIPS_FPU_EMULATOR
-  PKGARCH:=all
+	SECTION:=net
+	CATEGORY:=Network
+	SUBMENU:=Routing and Redirection
+	TITLE:=Yggdrasil supports end-to-end encrypted IPv6 networks
+	URL:=https://yggdrasil-network.github.io/
+	DEPENDS:=$(GO_ARCH_DEPENDS) @IPV6 +kmod-tun +@(mips):KERNEL_MIPS_FPU_EMULATOR
+	PKGARCH:=all
 endef
 
 define Package/yggdrasil/description
@@ -35,71 +35,75 @@ define Package/yggdrasil/description
 endef
 
 ifeq ($(ARCH),aarch64)
-  GOARCH:=arm64
+	GOARCH:=arm64
 endif
 
 ifeq ($(ARCH),arc)
-  GOARCH:=risc
+	GOARCH:=risc
 endif
 
 ifeq ($(ARCH),arc)
-  GOARCH:=risc
+	GOARCH:=risc
 endif
 
 ifeq ($(ARCH),arm)
-  GOARCH:=arm
+	GOARCH:=arm
 endif
 
 ifeq ($(ARCH),armeb)
-  GOARCH:=armbe
+	GOARCH:=armbe
 endif
 
 ifeq ($(ARCH),i386)
-  GOARCH:=386
+	GOARCH:=386
 endif
 
 ifeq ($(ARCH),mips)
-  GOARCH:=mips
+	GOARCH:=mips
 endif
 
 ifeq ($(ARCH),mips64)
-  GOARCH:=mips64
+	GOARCH:=mips64
 endif
 
 ifeq ($(ARCH),mipsel)
-  GOARCH:=mipsle
+	GOARCH:=mipsle
 endif
 
 ifeq ($(ARCH),powerpc)
-  GOARCH:=ppc64
+	GOARCH:=ppc64
 endif
 
 define Build/Compile
-  cd $(PKG_BUILD_DIR) && \
-  GOOS="linux" \
-  GOARCH="$(GOARCH)" \
-  PKGVER="$(PKG_SOURCE_VERSION)-openwrt" \
-  $(PKG_BUILD_DIR)/build
+	cd $(PKG_BUILD_DIR) && \
+	GOOS="linux" \
+	GOARCH="$(GOARCH)" \
+	PKGVER="$(PKG_SOURCE_VERSION)-openwrt" \
+	$(PKG_BUILD_DIR)/build
 endef
 
 define Package/yggdrasil/install
-  $(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_DIR) \
+		$(1)/etc/init.d \
+		$(1)/etc/uci-defaults \
+		$(1)/usr/sbin
 
-  $(INSTALL_BIN) \
-    $(PKG_BUILD_DIR)/yggdrasil \
-    $(1)/usr/sbin
+	$(INSTALL_BIN) \
+		$(PKG_BUILD_DIR)/yggdrasil \
+		$(1)/usr/sbin
 
-  $(INSTALL_BIN) \
-    $(PKG_BUILD_DIR)/yggdrasilctl \
-    $(1)/usr/sbin
+	$(INSTALL_BIN) \
+		$(PKG_BUILD_DIR)/yggdrasilctl \
+		$(1)/usr/sbin
 
-  $(INSTALL_BIN) \
-    ./files/yggdrasil.defaults \
-    $(1)/etc/uci-defaults/yggdrasil
+	$(INSTALL_BIN) \
+		./files/yggdrasil.defaults \
+		$(1)/etc/uci-defaults/yggdrasil
 
-  $(INSTALL_BIN) \
-    ./files/yggdrasil.init \
-    $(1)/etc/init.d/yggdrasil
+	$(INSTALL_BIN) \
+		./files/yggdrasil.init \
+		$(1)/etc/init.d/yggdrasil
 endef
+
 
 $(eval $(call BuildPackage,yggdrasil))
