@@ -5,7 +5,7 @@ PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/yggdrasil-network/yggdrasil-go.git
-PKG_SOURCE_VERSION:=develop
+PKG_SOURCE_VERSION:=v0.3.5
 PKG_LICENSE:=GPL-3.0
 PKG_MAINTAINER:=William Fleurant <meshnet@protonmail.com>
 
@@ -78,7 +78,7 @@ define Build/Compile
   cd $(PKG_BUILD_DIR) && \
   GOOS="linux" \
   GOARCH="$(GOARCH)" \
-  PKGVER="0.3.3-openwrt" \
+  PKGVER="$(PKG_SOURCE_VERSION)-openwrt" \
   $(PKG_BUILD_DIR)/build
 endef
 
@@ -92,6 +92,14 @@ define Package/yggdrasil/install
   $(INSTALL_BIN) \
     $(PKG_BUILD_DIR)/yggdrasilctl \
     $(1)/usr/sbin
+
+  $(INSTALL_BIN) \
+    ./files/yggdrasil.defaults \
+    $(1)/etc/uci-defaults/yggdrasil
+
+  $(INSTALL_BIN) \
+    ./files/yggdrasil.init \
+    $(1)/etc/init.d/yggdrasil
 endef
 
 $(eval $(call BuildPackage,yggdrasil))
