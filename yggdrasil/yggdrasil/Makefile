@@ -20,45 +20,78 @@ define Package/yggdrasil
   SUBMENU:=Routing and Redirection
   TITLE:=Yggdrasil supports end-to-end encrypted IPv6 networks
   URL:=https://yggdrasil-network.github.io/
-  DEPENDS:=$(GO_ARCH_DEPENDS)
+  DEPENDS:=$(GO_ARCH_DEPENDS) @IPV6 +kmod-tun +@(mips):KERNEL_MIPS_FPU_EMULATOR
   PKGARCH:=all
 endef
 
 define Package/yggdrasil/description
-Yggdrasil is an early-stage implementation of a fully end-to-end encrypted IPv6 network.
-It is lightweight, self-arranging, supported on multiple platforms and allows pretty much
-any IPv6-capable application to communicate securely with other Yggdrasil nodes.
-Yggdrasil does not require you to have IPv6 Internet connectivity - it also works over IPv4.
-Although Yggdrasil shares many similarities with cjdns, it employs a different routing
-algorithm based on a globally-agreed spanning tree and greedy routing in a metric space,
-and aims to implement some novel local backpressure routing techniques. In theory, Yggdrasil
-should scale well on networks with internet-like topologies.
+ Yggdrasil builds end-to-end encrypted networks with IPv6.
+ Beyond the similarities with cjdns is a different routing
+ algorithm. This globally-agreed spanning tree uses greedy
+ routing in a metric space. Back-pressure routing techniques
+ allow advanced link aggregation bonding on per-stream basis.
+ In turn, a single stream will span across multiple network
+ interfaces simultaneously with much greater throughput.
 endef
 
+ifeq ($(ARCH),aarch64)
+  GOARCH:=arm64
+endif
 
-## wip: hardcoded to mips
+ifeq ($(ARCH),arc)
+  GOARCH:=risc
+endif
+
+ifeq ($(ARCH),arc)
+  GOARCH:=risc
+endif
+
+ifeq ($(ARCH),arm)
+  GOARCH:=arm
+endif
+
+ifeq ($(ARCH),armeb)
+  GOARCH:=armbe
+endif
+
+ifeq ($(ARCH),i386)
+  GOARCH:=386
+endif
+
+ifeq ($(ARCH),mips)
+  GOARCH:=mips
+endif
+
+ifeq ($(ARCH),mips64)
+  GOARCH:=mips64
+endif
+
+ifeq ($(ARCH),mipsel)
+  GOARCH:=mipsle
+endif
+
+ifeq ($(ARCH),powerpc)
+  GOARCH:=ppc64
+endif
+
 define Build/Compile
-	cd $(PKG_BUILD_DIR) && \
-    go env && \
-	GOOS="linux" GOARCH="mips" PKGVER="0.3.3-openwrt" $(PKG_BUILD_DIR)/build
+  cd $(PKG_BUILD_DIR) && \
+  GOOS="linux" \
+  GOARCH="$(GOARCH)" \
+  PKGVER="0.3.3-openwrt" \
+  $(PKG_BUILD_DIR)/build
 endef
 
 define Package/yggdrasil/install
-	$(INSTALL_DIR) $(1)/usr/sbin
+  $(INSTALL_DIR) $(1)/usr/sbin
 
-	$(INSTALL_BIN) \
-		$(PKG_BUILD_DIR)/yggdrasil \
-		$(1)/usr/sbin
+  $(INSTALL_BIN) \
+    $(PKG_BUILD_DIR)/yggdrasil \
+    $(1)/usr/sbin
 
-	$(INSTALL_BIN) \
-		$(PKG_BUILD_DIR)/yggdrasilctl \
-		$(1)/usr/sbin
-
+  $(INSTALL_BIN) \
+    $(PKG_BUILD_DIR)/yggdrasilctl \
+    $(1)/usr/sbin
 endef
 
-
 $(eval $(call BuildPackage,yggdrasil))
-
-
-
-
